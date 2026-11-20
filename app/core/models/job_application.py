@@ -1,13 +1,19 @@
+import typing
 import uuid
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.application.config.database import DatabaseModel
 
+if typing.TYPE_CHECKING:
+    from app.core.models.profile import ProfileEntity
+
 
 class JobApplication(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: uuid.UUID = Field(default_factory=uuid.uuid4)
     profile_id: uuid.UUID
     title: str
@@ -32,3 +38,4 @@ class JobApplicationEntity(DatabaseModel):
     skills: Mapped[str] = mapped_column(nullable=False)
     softskills: Mapped[str] = mapped_column(nullable=True)
     degree: Mapped[str] = mapped_column(nullable=True)
+    profile: Mapped["ProfileEntity"] = relationship(back_populates="job_applications")
